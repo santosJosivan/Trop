@@ -32,13 +32,18 @@ param(
     [int]$FailuresBeforeReboot = 4,
     [int]$PingTimeoutMs = 2000,
     [int]$CooldownMinutes = 6,
-    [string]$LogFile = (Join-Path $PSScriptRoot 'ModemWatchdog.log'),
+    [string]$LogFile,
     [switch]$SetPassword,
     [switch]$TestLogin,
     [switch]$DryRun
 )
 
 $ErrorActionPreference = 'Stop'
+# Windows PowerShell 5.1 leaves $PSScriptRoot empty in param defaults, so set the log path here.
+if (-not $LogFile) {
+    $scriptDir = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
+    $LogFile = Join-Path $scriptDir 'ModemWatchdog.log'
+}
 $CredFile = Join-Path $env:APPDATA 'ModemWatchdog\modem.cred'
 $ApiPath = '/cgi/json-req'
 
